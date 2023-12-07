@@ -111,12 +111,11 @@ const result = ref("");
 
 function finish() {
   alert("終了！ " + score.value + " / 38問 正解");
-  result.value = tmpResult;
 }
 
 const memberCheck = ref(false);
 function memberHint(e) {
-  if (this.memberCheck) {
+  if (memberCheck.value) {
     document
       .querySelectorAll(".member")
       .forEach((i) => i.classList.add("invisible"));
@@ -130,7 +129,7 @@ function memberHint(e) {
 const colorNameCheck = ref(false);
 
 function colorHint(e) {
-  if (this.colorNameCheck) {
+  if (colorNameCheck.value) {
     document
       .querySelectorAll(".color-name")
       .forEach((i) => i.classList.add("invisible"));
