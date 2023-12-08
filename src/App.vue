@@ -107,13 +107,22 @@ imas,シャイニーカラーズ,三川華月,鈴木羽那,#e4cad5,day2
 imas,シャイニーカラーズ,小澤麗那,郁田はるき,#f8e5b2,day2`;
 
 import { ref } from "vue";
-const day = new URL(window.location.href).searchParams.get("day") == 2 ? 2 : 1;
+const mode = new URL(window.location.href).searchParams.get("mode");
 
 const lineList = csvData.split("\n");
 // 1行目はKeyとして利用するため
 const keyList = lineList[0].split(",");
 const dataList = lineList
   .filter((_, index) => index !== 0) // 2行目以降がデータのため
+  .filter((i) => {
+    if (mode == "imas") {
+      return i.startsWith("imas");
+    } else if (mode == "ll") {
+      return i.startsWith("ll");
+    } else {
+      return true;
+    }
+  })
   .map((line) => {
     const valueList = line.split(",");
     const tmpObj = {};
@@ -123,6 +132,7 @@ const dataList = lineList
 
 const target = ref(0);
 const score = ref(0);
+const total = ref(dataList.length > 50 ? 50 : dataList.length);
 
 const questionList = ref([...dataList.sort(() => Math.random() - 0.5)]);
 const addChoice = ref(
@@ -179,7 +189,7 @@ function answer(answerNum) {
 }
 
 function finish() {
-  resultText.value = "終了！ " + score.value + " / " + "50問 正解";
+  resultText.value = "終了！ " + score.value + " / " + total.value + "問 正解";
   document.querySelector("dialog").showModal();
   document.querySelector("dialog").classList.remove("is-close");
 }
@@ -238,10 +248,17 @@ function retry() {
       <a class="ctrlbtn next" @click="next"> 分からん！</a>
       <div class="score">
         <p>
-          スコア : <span class="score-text">{{ score }}</span> / 50 正解
+          スコア : <span class="score-text">{{ score }}</span> /
+          {{ total }} 正解 <span class="qNo">(現在 {{ target + 1 }}問目)</span>
         </p>
       </div>
-      <div block-hint>
+      <div class="block-mode">
+        <p>モード設定</p>
+        <a class="mode" href="/index.html">全アイドル</a>
+        <a class="mode" href="/index.html?mode=imas">アイマスオンリー</a>
+        <a class="mode" href="/index.html?mode=ll">ラブライブ！オンリー</a>
+      </div>
+      <div class="block-hint">
         <p>ヒント設定</p>
         <div class="hints">
           <label for="chMember">メンバー名を非表示</label>
@@ -284,10 +301,20 @@ main {
 .score-text {
   font-size: larger;
 }
+.qNo {
+  font-size: small;
+  color: rgb(49, 49, 49);
+}
 .control {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+.block-mode > p {
+  padding: 3px 0;
+}
+a.mode {
+  display: block;
 }
 .hints {
   display: flex;
