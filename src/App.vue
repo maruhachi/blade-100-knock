@@ -149,7 +149,7 @@ const choices = ref([
 ]);
 
 function next() {
-  if (target.value == 49) {
+  if (target.value == total.value - 1) {
     finish();
     return;
   }
@@ -258,6 +258,16 @@ function retry() {
         <a class="mode" href="/index.html?mode=imas">アイマスオンリー</a>
         <a class="mode" href="/index.html?mode=ll">ラブライブ！オンリー</a>
       </div>
+
+      <h3>リザルト</h3>
+      <div class="block-result">
+        <div class="result" v-for="item in resultList">
+          <i class="collect-color" :style="{ backgroundColor: item.color }"></i>
+          <p class="result-text" :style="{ color: item.textColor }">
+            {{ item.resultText }}
+          </p>
+        </div>
+      </div>
       <div class="block-hint">
         <p>ヒント設定</p>
         <div class="hints">
@@ -269,15 +279,6 @@ function retry() {
             v-model="memberCheck"
             @change="memberHint($event)"
           />
-        </div>
-      </div>
-      <h3>リザルト</h3>
-      <div class="block-result">
-        <div class="result" v-for="item in resultList">
-          <i class="collect-color" :style="{ backgroundColor: item.color }"></i>
-          <p class="result-text" :style="{ color: item.textColor }">
-            {{ item.resultText }}
-          </p>
         </div>
       </div>
     </div>
@@ -308,7 +309,7 @@ main {
 .control {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 .block-mode > p {
   padding: 3px 0;
@@ -328,7 +329,7 @@ a.mode {
 }
 .color {
   width: 23vw;
-  height: 20vh;
+  height: 16vh;
   text-align: center;
   vertical-align: middle;
 }
