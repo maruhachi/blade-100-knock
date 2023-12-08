@@ -117,7 +117,7 @@ const choices = ref([
 ]);
 
 function next() {
-  if (target.value == dataList.length - 1) {
+  if (target.value == 49) {
     finish();
     return;
   }
@@ -134,28 +134,29 @@ function next() {
   ].sort(() => Math.random() - 0.5);
 }
 
+const resultList = ref([]);
+
 function answer(answerNum) {
-  if (
+  const isCollect =
     choices.value[answerNum]["member"] ==
-    questionList.value[target.value]["member"]
-  ) {
+    questionList.value[target.value]["member"];
+  if (isCollect) {
     score.value++;
   }
-  result.value =
-    "正解: " +
-    questionList.value[target.value]["member"] +
-    ", 回答 : " +
-    choices.value[answerNum]["member"] +
-    "\r\n" +
-    result.value;
+  resultList.value.unshift({
+    resultText:
+      (isCollect ? "○ : " : "✕ : ") +
+      questionList.value[target.value]["member"] +
+      ", 回答 : " +
+      choices.value[answerNum]["member"],
+    color: questionList.value[target.value]["code"],
+    textColor: isCollect ? "black" : "red",
+  });
   next();
 }
 
-const tmpResult = "";
-const result = ref("");
-
 function finish() {
-  alert("終了！ " + score.value + " / 38問 正解");
+  alert("終了！ " + score.value + " / " + total.value + "問 正解");
 }
 
 const memberCheck = ref(false);
@@ -167,20 +168,6 @@ function memberHint(e) {
   } else {
     document
       .querySelectorAll(".member")
-      .forEach((i) => i.classList.remove("invisible"));
-  }
-}
-
-const colorNameCheck = ref(false);
-
-function colorHint(e) {
-  if (colorNameCheck.value) {
-    document
-      .querySelectorAll(".color-name")
-      .forEach((i) => i.classList.add("invisible"));
-  } else {
-    document
-      .querySelectorAll(".color-name")
       .forEach((i) => i.classList.remove("invisible"));
   }
 }
@@ -197,30 +184,22 @@ function colorHint(e) {
           class="color"
           :style="{ backgroundColor: choices[0]['code'] }"
           @click="answer(0)"
-        >
-          <span class="color-name">{{ choices[0]["color"] }}</span>
-        </button>
+        ></button>
         <button
           class="color"
           :style="{ backgroundColor: choices[1]['code'] }"
           @click="answer(1)"
-        >
-          <span class="color-name">{{ choices[1]["color"] }}</span>
-        </button>
+        ></button>
         <button
           class="color"
           :style="{ backgroundColor: choices[2]['code'] }"
           @click="answer(2)"
-        >
-          <span class="color-name">{{ choices[2]["color"] }}</span>
-        </button>
+        ></button>
         <button
           class="color"
           :style="{ backgroundColor: choices[3]['code'] }"
           @click="answer(3)"
-        >
-          <span class="color-name">{{ choices[3]["color"] }}</span>
-        </button>
+        ></button>
       </div>
     </div>
     <div class="control">
@@ -228,12 +207,14 @@ function colorHint(e) {
         <span>分からん！</span>
       </a>
       <div class="score">
-        <p>スコア : {{ score }} / {{ total }} 正解</p>
+        <p>
+          スコア : <span class="score-text">{{ score }}</span> / 50 正解
+        </p>
       </div>
-      <p>ヒント設定</p>
       <div block-hint>
+        <p>ヒント設定</p>
         <div class="hints">
-          <label for="chMember">メンバー名を表示</label>
+          <label for="chMember">メンバー名を非表示</label>
           <input
             id="chMember"
             type="checkbox"
@@ -242,20 +223,15 @@ function colorHint(e) {
             @change="memberHint($event)"
           />
         </div>
-        <div class="hints">
-          <label for="chColor">色名を表示</label>
-          <input
-            id="chColor"
-            type="checkbox"
-            class="ctrlbtn hint2"
-            v-model="colorNameCheck"
-            @change="colorHint($event)"
-          />
-        </div>
       </div>
       <h3>リザルト</h3>
       <div class="block-result">
-        <p class="result-text">{{ result }}</p>
+        <div class="result" v-for="item in resultList">
+          <i class="collect-color" :style="{ backgroundColor: item.color }"></i>
+          <p class="result-text" :style="{ color: item.textColor }">
+            {{ item.resultText }}
+          </p>
+        </div>
       </div>
     </div>
   </main>
@@ -271,7 +247,9 @@ main {
 .info > div {
   padding: 2px 0px;
 }
-
+.score-text {
+  font-size: larger;
+}
 .control {
   display: flex;
   flex-direction: column;
@@ -309,8 +287,20 @@ main {
 .block-result {
   padding: 0 10px;
 }
+
+.result {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
 .result-text {
-  white-space: pre-wrap;
+  padding-left: 3px;
+}
+
+.collect-color {
+  height: 18px;
+  width: 28px;
+  border: 0.5px solid gray;
 }
 
 header .wrapper {
